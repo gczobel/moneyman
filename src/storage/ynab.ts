@@ -64,21 +64,33 @@ export class YNABStorage implements TransactionStorage {
     }
 
     // Send transactions to YNAB
-    logger(`sending to YNAB budget: "${this.budgetName}"`);
-    const resp = await this.ynabAPI.transactions.createTransactions(
-      YNAB_BUDGET_ID,
-      {
-        transactions: txToSend,
-      },
-    );
-    logger("transactions sent to YNAB successfully!");
+    let resp: ynab.SaveTransactionsResponse | undefined;
+    try {
+      logger(`sending to YNAB budget: "${this.budgetName}"`);
+      const resp = await this.ynabAPI.transactions.createTransactions(
+        YNAB_BUDGET_ID,
+        {
+          transactions: txToSend,
+        },
+      );
+      logger("transactions sent to YNAB successfully!");
+    } catch (error) {
+      // Check if the error has a detail property
+      if (error && error.error && error.error.detail) {
+        // Throw a new Error with only the detail message
+        throw new Error(error.error.detail);
+      } else {
+        // If no detail property, rethrow the original error
+        throw error;
+      }
+    }
 
     if (missingAccounts.size > 0) {
       logger(`Accounts missing in YNAB_ACCOUNTS:`, missingAccounts);
     }
 
-    stats.added = resp.data.transactions?.length ?? 0;
-    stats.existing = resp.data.duplicate_import_ids?.length ?? 0;
+    stats.added = resp?.data.transactions?.length ?? 0;
+    stats.existing = resp?.data.duplicate_import_ids?.length ?? 0;
     stats.skipped += stats.existing;
 
     return stats;
