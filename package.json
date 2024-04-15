@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/daniel-hauser/moneyman#readme",
   "dependencies": {
-    "azure-kusto-data": "^5.2.3",
+    "azure-kusto-data": "^6.0.2",
     "azure-kusto-ingest": "^5.2.3",
     "date-fns": "^3.6.0",
     "debug": "^4.3.4",
@@ -48,7 +48,7 @@
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.5"
   },
   "husky": {
     "hooks": {
