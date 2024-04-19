@@ -54,7 +54,7 @@ jobs:
           -e YNAB_ACCOUNTS
           ${{ env.REGISTRY }}/${{ steps.normalize-repository-name.outputs.repository }}:latest
         env:
-          # DEBUG: ""
+          DEBUG: ${{ vars.DEBUG }}
           TZ: "Asia/Jerusalem"
           DAYS_BACK: ${{ github.event.inputs.daysBack }}
           WORKSHEET_NAME: ${{ github.event.inputs.worksheetName }}
