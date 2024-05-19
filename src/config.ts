@@ -31,7 +31,7 @@ const {
  */
 export const daysBackToScrape = DAYS_BACK || 10;
 export const worksheetName = WORKSHEET_NAME || "_moneyman";
-export const futureMonthsToScrape = parseInt(FUTURE_MONTHS, 10);
+export const futureMonthsToScrape = Number(FUTURE_MONTHS || 1);
 export const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const accountsToScrape = ACCOUNTS_TO_SCRAPE.split(",")
