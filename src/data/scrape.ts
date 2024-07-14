@@ -20,6 +20,7 @@ export async function getAccountTransactions(
       futureMonthsToScrape: Number.isNaN(futureMonthsToScrape)
         ? undefined
         : futureMonthsToScrape,
+        defaultTimeout: 60000,
     });
 
     scraper.onProgress((companyId, { type }) => {
