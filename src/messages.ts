@@ -9,10 +9,7 @@ import {
   TransactionRow,
 } from "./types";
 
-export function getSummaryMessages(
-  results: Array<AccountScrapeResult>,
-  stats: Array<SaveStats>,
-) {
+export function getSummaryMessages(results: Array<AccountScrapeResult>) {
   const accountsSummary = results.flatMap(({ result, companyId }) => {
     if (!result.success) {
       return `\t❌ [${companyId}] ${result.errorType}${
@@ -27,21 +24,15 @@ export function getSummaryMessages(
 
   const { pending, completed } = transactionsByStatus(results);
 
-  return [
-    `
+  return `
 ${transactionsString(pending, completed)}
 
 Accounts updated:
-${accountsSummary.join("\n") || "\t😶 None"}`.trim(),
-    `
-Saved to:
-${stats.map((s) => statsString(s)).join("\n") || "\t😶 None"}
+${accountsSummary.join("\n") || "\t😶 None"}
 
--------
 Pending txns:
 ${transactionList(pending) || "\t😶 None"}
-`.trim(),
-  ];
+`.trim();
 }
 
 function transactionsString(
@@ -85,8 +76,11 @@ function transactionString(t: Transaction) {
 function transactionList(transactions: Array<Transaction>, indent = "\t") {
   return transactions.map((t) => `${indent}${transactionString(t)}`).join("\n");
 }
+export function saving(storage: string) {
+  return `📝 ${storage} Saving...`;
+}
 
-function statsString(stats: SaveStats): string {
+export function saved(stats: SaveStats): string {
   return `
 📝 ${stats.name} (${stats.table})
 \t${stats.added} added
@@ -125,12 +119,16 @@ function highlightedTransactionsString(
   }
 
   const indentString = "\t".repeat(indent);
-
-  return (
-    `${indentString}${"-".repeat(5)}\n` +
-    `${Object.entries(groups).map(([name, txns]) => {
+  const groupsString = Object.entries(groups)
+    .filter(([_, txns]) => txns.length > 0)
+    .map(([name, txns]) => {
       const transactionsString = transactionList(txns, `${indentString}\t`);
       return `${indentString}${name}:\n${transactionsString}`;
-    })}`
-  );
+    });
+
+  if (groupsString.length === 0) {
+    return "";
+  }
+
+  return `${indentString}${"-".repeat(5)}\n${groupsString}`;
 }
