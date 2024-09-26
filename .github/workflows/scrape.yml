@@ -21,7 +21,7 @@ env:
   REGISTRY: ghcr.io
 jobs:
   scrape:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     # ubuntu-24.04
     # self-hosted
     # ubuntu-latest
