@@ -73,13 +73,13 @@ Follow these steps when you need to sync with the upstream repository:
    # Accept package.json changes
    git checkout --theirs package.json
    git add package.json
-   
+
    # Delete conflicted package-lock.json
    rm package-lock.json
-   
+
    # Regenerate package-lock.json
    npm install
-   
+
    # Add the new file
    git add package-lock.json
    ```
@@ -140,9 +140,11 @@ If you need to reapply specific customizations after a merge:
 To make maintenance easier in the future, consider:
 
 1. Script the sync process for automation
+
    - Create a shell script that automates the fetch, merge, and specific file checkouts
 
 2. Consider moving custom configurations to separate files that won't conflict, such as:
+
    - `.github/workflows/scrape.custom.yml`
    - `.vscode/launch.custom.json`
 
