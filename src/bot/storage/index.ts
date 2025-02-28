@@ -3,7 +3,7 @@ import {
   AccountScrapeResult,
   TransactionRow,
   TransactionStorage,
-} from "../types.js";
+} from "../../types.js";
 import { LocalJsonStorage } from "./json.js";
 import { GoogleSheetsStorage } from "./sheets.js";
 import { AzureDataExplorerStorage } from "./azure-data-explorer.js";
@@ -15,7 +15,7 @@ import { saving } from "../messages.js";
 import { createLogger } from "../../utils/logger.js";
 import { statsString } from "../saveStats.js";
 import { parallel } from "async";
-import { Timer } from "../utils/Timer.js";
+import { Timer } from "../../utils/Timer.js";
 
 const baseLogger = createLogger("storage");
 

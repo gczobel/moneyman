@@ -13,25 +13,13 @@ const {
   DAYS_BACK,
   ACCOUNTS_TO_SCRAPE = "",
   FUTURE_MONTHS = "",
-  YNAB_TOKEN = "",
-  YNAB_BUDGET_ID = "",
-  YNAB_ACCOUNTS = "",
-  BUXFER_USER_NAME = "",
-  BUXFER_PASSWORD = "",
-  BUXFER_ACCOUNTS = "",
-  TRANSACTION_HASH_TYPE = "",
-  WEB_POST_URL = "",
   MAX_PARALLEL_SCRAPERS = "",
 } = process.env;
 
-/**
- * Add default values in case the value is falsy (0 is not valid here) or an empty string
- */
-export const daysBackToScrape = DAYS_BACK || 10;
-export const worksheetName = WORKSHEET_NAME || "_moneyman";
-export const futureMonthsToScrape = parseInt(FUTURE_MONTHS, 10);
-export const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-export const parallelScrapers = MAX_PARALLEL_SCRAPERS || 1;
+logger("Env", {
+  systemName,
+  systemTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+});
 
 logger("env vars", {
   DAYS_BACK,

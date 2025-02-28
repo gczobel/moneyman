@@ -1,7 +1,7 @@
 import { TransactionStatuses } from "israeli-bank-scrapers/lib/transactions.js";
 import { TransactionRow } from "../types.js";
 import { transactionList } from "./messages.js";
-import { Timer } from "./utils/Timer.js";
+import { Timer } from "../utils/Timer.js";
 
 export interface SaveStats {
   /**

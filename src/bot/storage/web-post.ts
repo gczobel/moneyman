@@ -7,7 +7,8 @@ import { createSaveStats } from "../saveStats.js";
 const logger = createLogger("WebPostStorage");
 
 export class WebPostStorage implements TransactionStorage {
-  private url = WEB_POST_URL;
+  private url = process.env.WEB_POST_URL || "";
+  private authorizationToken = process.env.WEB_POST_AUTHORIZATION_TOKEN || "";
 
   canSave() {
     return Boolean(this.url) && URL.canParse(this.url);
@@ -30,8 +31,11 @@ export class WebPostStorage implements TransactionStorage {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(this.authorizationToken && {
+            Authorization: this.authorizationToken,
+          }),
         },
-        body: JSON.stringify(nonPendingTxns.map((tx) => transactionRow(tx))),
+        body: JSON.stringify(nonPendingTxns.map((tx) => tableRow(tx))),
       }),
       onProgress("Sending"),
     ]);
