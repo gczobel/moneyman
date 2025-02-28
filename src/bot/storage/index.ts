@@ -12,7 +12,7 @@ import { YNABStorage } from "./ynab.js";
 import { BuxferStorage } from "./buxfer.js";
 import { WebPostStorage } from "./web-post.js";
 import { saving } from "../messages.js";
-import { createLogger } from "../utils/logger.js";
+import { createLogger } from "../../utils/logger.js";
 import { statsString } from "../saveStats.js";
 import { parallel } from "async";
 import { Timer } from "../utils/Timer.js";

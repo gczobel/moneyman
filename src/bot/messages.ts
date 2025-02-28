@@ -57,7 +57,9 @@ function foreignTransactionsSummary(completed: Array<Transaction>) {
   const charged = completed.filter(
     (tx) => normalizeCurrency(tx.chargedCurrency) !== "ILS",
   ).length;
-  return `From completed, ${original} not originally in ILS${charged ? ` and ${charged} not charged in ILS` : ""}`;
+  return `From completed, ${original} not originally in ILS${
+    charged ? ` and ${charged} not charged in ILS` : ""
+  }`;
 }
 
 function transactionAmount(t: Transaction): number {
