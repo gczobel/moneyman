@@ -1,1 +1,6 @@
 * text eol=lf
+
+# Custom merge strategies for our customized files
+.github/workflows/scrape.yml merge=ours
+.vscode/launch.json merge=ours
+CUSTOMIZATION.md merge=ours
