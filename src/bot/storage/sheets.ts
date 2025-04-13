@@ -5,7 +5,7 @@ import {
 } from "google-spreadsheet";
 import { GoogleAuth } from "google-auth-library";
 import type { TransactionRow, TransactionStorage } from "../../types.js";
-import { TransactionStatuses } from "israeli-bank-scrapers/lib/transactions.js";
+import { TransactionStatuses } from "@gczobel/israeli-bank-scrapers/lib/transactions.js";
 import { sendDeprecationMessage } from "../notifier.js";
 import { createSaveStats } from "../saveStats.js";
 import { TableRow, tableRow } from "../transactionTableRow.js";

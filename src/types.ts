@@ -1,9 +1,9 @@
-import type { CompanyTypes } from "israeli-bank-scrapers";
-import type { Transaction } from "israeli-bank-scrapers/lib/transactions.js";
+import type { CompanyTypes } from "@gczobel/israeli-bank-scrapers";
+import type { Transaction } from "@gczobel/israeli-bank-scrapers/lib/transactions.js";
 import type {
   ScraperCredentials,
   ScraperScrapingResult,
-} from "israeli-bank-scrapers";
+} from "@gczobel/israeli-bank-scrapers";
 import { SaveStats } from "./bot/saveStats.js";
 export type { Transaction };
 

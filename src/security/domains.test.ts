@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { CompanyTypes } from "israeli-bank-scrapers";
+import { CompanyTypes } from "@gczobel/israeli-bank-scrapers";
 import { initDomainTracking, reportUsedDomains } from "./domains.js";
 import {
   BrowserContext,

@@ -4,7 +4,7 @@ import { AccountConfig, AccountScrapeResult, ScraperConfig } from "../types.js";
 import { createLogger } from "../utils/logger.js";
 import { createBrowser, createSecureBrowserContext } from "./browser.js";
 import { getFailureScreenShotPath } from "../utils/failureScreenshot.js";
-import { ScraperOptions } from "israeli-bank-scrapers";
+import { ScraperOptions } from "@gczobel/israeli-bank-scrapers";
 import { parallelLimit } from "async";
 
 const logger = createLogger("scraper");

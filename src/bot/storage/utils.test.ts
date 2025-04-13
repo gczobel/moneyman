@@ -2,9 +2,9 @@ import {
   Transaction,
   TransactionStatuses,
   TransactionTypes,
-} from "israeli-bank-scrapers/lib/transactions.js";
+} from "@gczobel/israeli-bank-scrapers/lib/transactions.js";
 import { transactionUniqueId, transactionHash } from "./utils.js";
-import { CompanyTypes } from "israeli-bank-scrapers";
+import { CompanyTypes } from "@gczobel/israeli-bank-scrapers";
 
 const transaction1: Transaction = {
   date: "2021-01-01",

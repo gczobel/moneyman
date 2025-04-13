@@ -3,7 +3,7 @@ import { createLogger } from "../../utils/logger.js";
 import { format, parseISO } from "date-fns";
 import * as ynab from "ynab";
 import hash from "hash-it";
-import { TransactionStatuses } from "israeli-bank-scrapers/lib/transactions.js";
+import { TransactionStatuses } from "@gczobel/israeli-bank-scrapers/lib/transactions.js";
 import { sendDeprecationMessage } from "../notifier.js";
 import { createSaveStats } from "../saveStats.js";
 

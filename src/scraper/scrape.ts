@@ -2,9 +2,9 @@ import {
   createScraper,
   ScraperOptions,
   ScraperScrapingResult,
-} from "israeli-bank-scrapers";
+} from "@gczobel/israeli-bank-scrapers";
 import { AccountConfig } from "../types.js";
-import { ScraperErrorTypes } from "israeli-bank-scrapers/lib/scrapers/errors.js";
+import { ScraperErrorTypes } from "@gczobel/israeli-bank-scrapers/lib/scrapers/errors.js";
 import { createLogger } from "../utils/logger.js";
 
 const logger = createLogger("scrape");

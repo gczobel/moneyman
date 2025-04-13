@@ -1,7 +1,7 @@
 import {
   TransactionStatuses,
   TransactionTypes,
-} from "israeli-bank-scrapers/lib/transactions.js";
+} from "@gczobel/israeli-bank-scrapers/lib/transactions.js";
 import { AccountScrapeResult, Transaction } from "../types.js";
 import { normalizeCurrency } from "../utils/currency.js";
 import { Timer } from "../utils/Timer.js";

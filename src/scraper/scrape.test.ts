@@ -1,4 +1,4 @@
-import { CompanyTypes, type ScraperOptions } from "israeli-bank-scrapers";
+import { CompanyTypes, type ScraperOptions } from "@gczobel/israeli-bank-scrapers";
 import { getAccountTransactions } from "./scrape";
 import { mock, mockClear } from "jest-mock-extended";
 import { type BrowserContext, type Page } from "puppeteer";

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../node_modules/israeli-bank-scrapers"
+		}
+	],
+	"settings": {}
+}
