@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/daniel-hauser/moneyman#readme",
   "dependencies": {
-    "@gczobel/israeli-bank-s`crapers": "^1.0.4",
+    "@gczobel/israeli-bank-scrapers": "^1.0.4",
     "@mswjs/interceptors": "^0.38.0",
     "async": "^3.2.6",
     "azure-kusto-data": "^6.0.3",
