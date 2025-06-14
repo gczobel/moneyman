@@ -48,14 +48,13 @@ export class BuxferStorage implements TransactionStorage {
       const isPending = tx.status === TransactionStatuses.Pending;
       // Ignore pending and only upload completed transactions
       if (isPending) {
-        stats.skipped++;
         continue;
       }
 
       const accountId = this.accountToBuxferAccount.get(tx.account);
       if (!accountId) {
         missingAccounts.add(tx.account);
-        stats.skipped++;
+        stats.otherSkipped++;
         continue;
       }
 
@@ -75,13 +74,13 @@ export class BuxferStorage implements TransactionStorage {
         `sending to Buxfer accounts: "${this.accountToBuxferAccount.keys()}"`,
       );
       const [resp] = await Promise.all([
-        this.buxferClient.addTransactions(txToSend, false),
+        this.buxferClient.addTransactions(txToSend),
         onProgress("Sending"),
       ]);
       logger("transactions sent to Buxfer successfully!");
       stats.added = resp.addedTransactionIds.length;
-      stats.existing = resp.existingTransactionIds.length;
-      stats.skipped += stats.existing;
+      stats.existing = resp.duplicatedTransactionIds.length;
+      stats.otherSkipped += resp.ignoredTransactionIds.length;
     }
 
     if (missingAccounts.size > 0) {
@@ -92,7 +91,6 @@ export class BuxferStorage implements TransactionStorage {
   }
 
   tagTransactionsByRules(txToSend: BuxferTransaction[]) {
-    // TODO - Implement declarative rule engine
     const tags: string[] = ["added-by-moneyman-etl"];
     txToSend.forEach((trx) => {
       trx.tags = `${tags}`;

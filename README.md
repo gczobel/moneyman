@@ -15,10 +15,10 @@ This app requires some technical skills, if you prefer a GUI app you can use [Ca
 **Important:**
 The current implementation assumes that you run the code on secure and trusted computers.
 
-**It’s a bad idea**
+**It's a bad idea**
 to put all your financial data and passwords in one place, especially with more than read-only access.
 
-By using moneyman, you acknowledge that you are taking full responsibility for the code quality and will use it only after you review the code and validate that it’s secure.
+By using moneyman, you acknowledge that you are taking full responsibility for the code quality and will use it only after you review the code and validate that it's secure.
 
 **Please use a proper secret management solution to save and pass the environment variables**
 
@@ -88,17 +88,18 @@ Example:
 
 #### Other configurations
 
-| env variable name           | default            | description                                                                                                                                   |
-| --------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ACCOUNTS_TO_SCRAPE`        | `""`               | A comma separated list of providers to take from `ACCOUNTS_JSON`. if empty, all accounts will be used                                         |
-| `DAYS_BACK`                 | `10`               | The amount of days back to scrape                                                                                                             |
-| `TZ`                        | `'Asia/Jerusalem'` | A timezone for the process - used for the formatting of the timestamp                                                                         |
-| `FUTURE_MONTHS`             | `1`                | The amount of months that will be scrapped in the future, starting from the day calculated using `DAYS_BACK`                                  |
-| `TRANSACTION_HASH_TYPE`     | ``                 | The hash type to use for the transaction hash. Can be `moneyman` or empty. The default will be changed to `moneyman` in the upcoming versions |
-| `HIDDEN_DEPRECATIONS`       | ''                 | A comma separated list of deprecations to hide                                                                                                |
-| `PUPPETEER_EXECUTABLE_PATH` | `undefined`        | An ExecutablePath for the scraper. if undefined defaults to system.                                                                           |
-| `MAX_PARALLEL_SCRAPERS`     | `1`                | The maximum number of parallel scrapers to run                                                                                                |
-| `DOMAIN_TRACKING_ENABLED`   | ''                 | Enable tracking of all domains accessed during scraping                                                                                       |
+| env variable name                     | default            | description                                                                                                                                                               |
+| ------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ACCOUNTS_TO_SCRAPE`                  | `""`               | A comma separated list of providers to take from `ACCOUNTS_JSON`. if empty, all accounts will be used                                                                     |
+| `DAYS_BACK`                           | `10`               | The amount of days back to scrape                                                                                                                                         |
+| `TZ`                                  | `'Asia/Jerusalem'` | A timezone for the process - used for the formatting of the timestamp                                                                                                     |
+| `FUTURE_MONTHS`                       | `1`                | The amount of months that will be scrapped in the future, starting from the day calculated using `DAYS_BACK`                                                              |
+| `TRANSACTION_HASH_TYPE`               | ``                 | The hash type to use for the transaction hash. Can be `moneyman` or empty. The default will be changed to `moneyman` in the upcoming versions                             |
+| `ADDITIONAL_TRANSACTION_INFO_ENABLED` | `'false'`          | If set to `'true'`, enables the `additionalTransactionInformation` option in the underlying scraper, which may provide more detailed transaction data for some providers. |
+| `HIDDEN_DEPRECATIONS`                 | `''`               | A comma separated list of deprecations to hide                                                                                                                            |
+| `PUPPETEER_EXECUTABLE_PATH`           | `undefined`        | An ExecutablePath for the scraper. if undefined defaults to system.                                                                                                       |
+| `MAX_PARALLEL_SCRAPERS`               | `1`                | The maximum number of parallel scrapers to run                                                                                                                            |
+| `DOMAIN_TRACKING_ENABLED`             | `''`               | Enable tracking of all domains accessed during scraping                                                                                                                   |
 
 ### Domain Security
 
@@ -255,8 +256,8 @@ WIP
 1. Follow the instructions [here](https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication?id=setting-up-your-quotapplicationquot) to create a google service account.
 2. Create a [new sheet](https://sheets.new/) and share it with your service account using the `GOOGLE_SERVICE_ACCOUNT_EMAIL`.
 3. Create a sheet named `_moneyman` with the following headers in the first row:
-   | date | amount | description | memo | category | account | hash | comment | scraped at | scraped by | identifier | chargedCurrency |
-   | ---- | ------ | ----------- | ---- | -------- | ------- | ---- | ------- | ---------- | ---------- | ---------- | --------------- |
+   | date | amount | description | memo | category | account | hash | comment | scraped at | scraped by | identifier | chargedCurrency | raw |
+   | ---- | ------ | ----------- | ---- | -------- | ------- | ---- | ------- | ---------- | ---------- | ---------- | --------------- | --- |
 
 Use the following env vars to setup:
 
@@ -314,3 +315,29 @@ Example:
   "5897": "123456"
 }
 ```
+
+### Export to [Actual Budget](https://actualbudget.org/)
+
+Export transactions directly to your Actual Budget server.
+
+Use the following env vars to setup:
+| env variable name | description |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `ACTUAL_SERVER_URL` | The URL of your Actual Budget server |
+| `ACTUAL_PASSWORD` | The password for your Actual Budget server |
+| `ACTUAL_BUDGET_ID` | The ID of the budget where you want to import the data |
+| `ACTUAL_ACCOUNTS` | A key-value list to correlate each account with the Actual Budget account ID |
+
+#### ACTUAL_ACCOUNTS
+
+A `JSON` key-value pair structure representing a mapping between two identifiers. The `key` represents the account ID as understood by moneyman (from web scraping the financial institutions) and the `value` is the account ID from your Actual Budget server.
+
+Example:
+
+```json
+{
+  "5897": "actual-account-id-123"
+}
+```
+
+**Note:** Pending transactions will be skipped during import.
