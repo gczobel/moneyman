@@ -140,9 +140,11 @@ If you need to reapply specific customizations after a merge:
 To make maintenance easier in the future, consider:
 
 1. Script the sync process for automation
+
    - Create a shell script that automates the fetch, merge, and specific file checkouts
 
 2. Consider moving custom configurations to separate files that won't conflict, such as:
+
    - `.github/workflows/scrape.custom.yml`
    - `.vscode/launch.custom.json`
 
