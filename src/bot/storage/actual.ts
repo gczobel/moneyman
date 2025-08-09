@@ -1,54 +1,26 @@
 import * as actualApi from "@actual-app/api";
+import { ImportTransactionEntity } from "@actual-app/api/@types/loot-core/src/types/models/index.js";
 import hash from "hash-it";
 import { TransactionStatuses } from "israeli-bank-scrapers/lib/transactions.js";
+import assert from "node:assert";
 import fs from "node:fs/promises";
 import * as os from "os";
 import * as path from "path";
+import type { MoneymanConfig } from "../../config.js";
 import { TransactionRow, TransactionStorage } from "../../types.js";
 import { createLogger } from "../../utils/logger.js";
 import { createSaveStats, SaveStats } from "../saveStats.js";
 
-interface ActualTransaction {
-  id?: string;
-  account: string;
-  date: Date | string;
-  amount?: number;
-  payee?: string;
-  payee_name?: string;
-  imported_payee?: string;
-  category?: string;
-  notes?: string;
-  imported_id?: string;
-  transfer_id?: string;
-  cleared?: boolean;
-  subtransactions?: Array<{
-    amount: number;
-    category_id?: string;
-    notes?: string;
-  }>;
-}
-
 const logger = createLogger("ActualBudgetStorage");
-
-const {
-  ACTUAL_SERVER_URL,
-  ACTUAL_PASSWORD,
-  ACTUAL_BUDGET_ID,
-  ACTUAL_ACCOUNTS,
-  TRANSACTION_HASH_TYPE = "moneyman",
-} = process.env;
 
 export class ActualBudgetStorage implements TransactionStorage {
   private bankToActualAccountMap: Map<string, string>;
   private accountIdToNameMap: Map<string, string>;
 
+  constructor(private config: MoneymanConfig) {}
+
   canSave() {
-    return Boolean(
-      ACTUAL_SERVER_URL &&
-        ACTUAL_BUDGET_ID &&
-        ACTUAL_ACCOUNTS &&
-        ACTUAL_PASSWORD,
-    );
+    return Boolean(this.config.storage.actual);
   }
 
   async saveTransactions(
@@ -59,14 +31,14 @@ export class ActualBudgetStorage implements TransactionStorage {
 
     const stats = createSaveStats(
       "ActualBudgetStorage",
-      `budget: "${ACTUAL_BUDGET_ID}"`,
+      `budget: "${this.config.storage.actual?.budgetId || "unknown"}"`,
       txns,
     );
 
     try {
       const transactionsByActualAccountId = new Map<
         string,
-        ActualTransaction[]
+        ImportTransactionEntity[]
       >();
 
       for (let tx of txns) {
@@ -106,11 +78,13 @@ export class ActualBudgetStorage implements TransactionStorage {
   }
 
   private async sendTransactionsToActual(
-    transactionsByActualAccountId: Map<string, ActualTransaction[]>,
+    transactionsByActualAccountId: Map<string, ImportTransactionEntity[]>,
     stats: SaveStats,
     onProgress: (status: string) => Promise<void>,
   ) {
-    logger(`sending to Actual budget: "${ACTUAL_BUDGET_ID}"`);
+    logger(
+      `sending to Actual budget: "${this.config.storage.actual?.budgetId}"`,
+    );
 
     try {
       for (const [
@@ -154,8 +128,8 @@ export class ActualBudgetStorage implements TransactionStorage {
 
       logger("transactions sent to Actual successfully!");
 
-      if (TRANSACTION_HASH_TYPE !== "moneyman") {
-        logger("Warning: TRANSACTION_HASH_TYPE should be set to 'moneyman'");
+      if (this.config.options.scraping.transactionHashType !== "moneyman") {
+        logger("Warning: transactionHashType should be set to 'moneyman'");
       }
     } catch (error) {
       throw new Error(
@@ -166,6 +140,8 @@ export class ActualBudgetStorage implements TransactionStorage {
 
   private async init() {
     logger("init");
+    const actualConfig = this.config.storage.actual;
+    assert(actualConfig, "Actual storage is not configured");
 
     try {
       const tempDir = path.join(os.tmpdir(), "moneyman-actual-data");
@@ -176,11 +152,11 @@ export class ActualBudgetStorage implements TransactionStorage {
 
       await actualApi.init({
         dataDir: tempDir,
-        serverURL: ACTUAL_SERVER_URL,
-        password: ACTUAL_PASSWORD,
+        serverURL: actualConfig.serverUrl,
+        password: actualConfig.password,
       });
 
-      await actualApi.downloadBudget(ACTUAL_BUDGET_ID);
+      await actualApi.downloadBudget(actualConfig.budgetId);
 
       const actualAccounts = await actualApi.getAccounts();
       const validActualAccountIds = new Set(actualAccounts.map((a) => a.id));
@@ -188,7 +164,9 @@ export class ActualBudgetStorage implements TransactionStorage {
         actualAccounts.map((a) => [a.id, a.name]),
       );
 
-      this.bankToActualAccountMap = this.parseActualAccounts(ACTUAL_ACCOUNTS!);
+      this.bankToActualAccountMap = new Map(
+        Object.entries(actualConfig.accounts),
+      );
 
       for (const [
         bankAccountId,
@@ -216,31 +194,22 @@ export class ActualBudgetStorage implements TransactionStorage {
     }
   }
 
-  private parseActualAccounts(accountsJSON: string): Map<string, string> {
-    try {
-      const accounts = JSON.parse(accountsJSON);
-      return new Map(Object.entries(accounts));
-    } catch (parseError) {
-      throw new Error(
-        `Error parsing JSON in ACTUAL_ACCOUNTS: ${parseError.message}`,
-      );
-    }
-  }
-
   private convertTransactionToActualFormat(
     tx: TransactionRow,
     actualAccountId: string,
-  ): ActualTransaction {
+  ): ImportTransactionEntity {
     const amount = actualApi.utils.amountToInteger(tx.chargedAmount);
 
     return {
       account: actualAccountId,
-      date: new Date(tx.date),
+      date: new Date(tx.date).toISOString().split("T")[0],
       amount,
       payee_name: tx.description,
       cleared: tx.status === TransactionStatuses.Completed,
       imported_id: hash(
-        TRANSACTION_HASH_TYPE === "moneyman" ? tx.uniqueId : tx.hash,
+        this.config.options.scraping.transactionHashType === "moneyman"
+          ? tx.uniqueId
+          : tx.hash,
       ).toString(),
       notes: tx.memo,
     };
