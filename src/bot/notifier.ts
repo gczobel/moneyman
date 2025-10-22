@@ -1,11 +1,14 @@
-import { Telegraf, TelegramError } from "telegraf";
+import { Telegraf, TelegramError, Context } from "telegraf";
+import { message } from "telegraf/filters";
 import { createLogger, logToPublicLog } from "../utils/logger.js";
 import type { ImageWithCaption } from "../types.js";
 import { config } from "../config.js";
+import { waitForAbortSignal } from "../utils/promises.js";
+import { assignDeprecationHandler } from "./deprecationManager.js";
 
 const logger = createLogger("notifier");
 
-const telegramConfig = config.options.notifications.telegram;
+const telegramConfig = config.options.notifications?.telegram;
 const bot = telegramConfig ? new Telegraf(telegramConfig.apiKey) : null;
 
 logToPublicLog(
@@ -17,6 +20,13 @@ logToPublicLog(
 logger(`Telegram bot initialized: ${Boolean(bot)}`);
 if (bot && telegramConfig) {
   logger(`Telegram chat ID: ${telegramConfig.chatId}`);
+
+  assignDeprecationHandler((messageId, message) => {
+    if (!config.options.scraping.hiddenDeprecations?.includes(messageId)) {
+      logger(`Sending deprecation message: ${messageId}`);
+      void send(message);
+    }
+  });
 }
 
 export async function send(message: string, parseMode?: "HTML") {
@@ -123,25 +133,79 @@ export function sendError(message: any, caller: string = "") {
   );
 }
 
-const deprecationMessages = {
-  ["hashFiledChange"]: `This run is using the old transaction hash field, please update to the new one (it might require manual de-duping of some transactions). See https://github.com/daniel-hauser/moneyman/issues/268 for more details.`,
-  ["removeEnvVars"]:
-    "This run uses the old environment variables which are about to be removed, please update to the new `MONEYMAN_CONFIG` variable. `SEND_NEW_CONFIG_TO_TG` can be used to send the new config object to Telegram (available in the action when manually triggered).",
-} as const;
-logger(`Hidden deprecations: ${config.options.scraping.hiddenDeprecations}`);
-
-const sentDeprecationMessages = new Set<string>(
-  config.options.scraping.hiddenDeprecations,
-);
-
-export function sendDeprecationMessage(
-  messageId: keyof typeof deprecationMessages,
-) {
-  if (sentDeprecationMessages.has(messageId)) {
-    return;
+/**
+ * Request an OTP code from the user via Telegram and wait for their response
+ */
+export async function requestOtpCode(
+  companyId: string,
+  phoneNumber: string,
+): Promise<string> {
+  if (!bot || !telegramConfig?.chatId || !telegramConfig.enableOtp) {
+    throw new Error("Telegram OTP is not enabled or configured");
   }
-  // Avoid sending the same message multiple times
-  sentDeprecationMessages.add(messageId);
-  return send(`⚠️ Deprecation warning:
-${deprecationMessages[messageId]}`);
+
+  const requestMessage = await send(
+    `🔐 2FA Authentication Required\n\n` +
+      `Account: ${companyId}\n` +
+      `Please enter the OTP code sent to ${phoneNumber}:\n\n` +
+      `Reply to this message with the code.`,
+  );
+
+  if (!requestMessage) {
+    throw new Error("Failed to send OTP request message");
+  }
+
+  logger("Waiting for OTP code from user...");
+
+  const timeoutSeconds = telegramConfig.otpTimeoutSeconds;
+  const timeoutPromise = waitForAbortSignal(
+    AbortSignal.timeout(timeoutSeconds * 1000),
+  ).catch(() => {
+    throw new Error(
+      `OTP timeout: No response received within ${timeoutSeconds} seconds`,
+    );
+  });
+
+  const responsePromise = new Promise<string>((resolve, reject) => {
+    const handler = (ctx: Context) => {
+      if (ctx.chat?.id?.toString() !== telegramConfig.chatId) {
+        return;
+      }
+
+      if (!ctx.message || !("text" in ctx.message)) {
+        return;
+      }
+
+      const text = ctx.message.text?.trim();
+      if (!text) {
+        return;
+      }
+
+      logger(`Received OTP code: ${text}`);
+      void ctx.reply("✅ OTP code received. Continuing authentication...");
+
+      resolve(text);
+    };
+
+    bot.on(message("text"), handler);
+
+    bot
+      .launch(() => {
+        logger("Bot launched for OTP collection");
+      })
+      .catch((error) => {
+        if (!error.message.includes("already running")) {
+          sendError(error, "requestOtpCode");
+          reject(
+            new Error(`Failed to start Telegram bot for OTP: ${error.message}`),
+          );
+        }
+      });
+  });
+
+  try {
+    return await Promise.race([responsePromise, timeoutPromise]);
+  } finally {
+    bot.stop();
+  }
 }
