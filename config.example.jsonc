@@ -32,7 +32,9 @@
       // Number of future months to scrape (default: 1)
       // "futureMonths": 1,
       // Maximum number of parallel scrapers (default: 1)
-      // "maxParallelScrapers": 1
+      // "maxParallelScrapers": 1,
+      // Include raw transaction data for debugging purposes (default: false)
+      // "includeRawTransaction": false
     },
     "logging": {
       // "getIpInfoUrl": "https://ipinfo.io/json"
@@ -49,13 +51,7 @@
       //   // Enable OTP (One-Time Password) support for 2FA authentication (default: false)
       //   "enableOtp": false,
       //   // Maximum time in seconds to wait for OTP response (default: 300)
-      //   "otpTimeoutSeconds": 300,
-      //   // Enable sending run metadata to Telegram after each run (default: true)
-      //   "reportRunMetadata": true,
-      //   // Include used domains in the run metadata report (default: true)
-      //   "reportUsedDomains": true,
-      //   // Include external IP address in the run metadata report (default: true)
-      //   "reportExternalIp": true
+      //   "otpTimeoutSeconds": 300
       // }
     },
   },

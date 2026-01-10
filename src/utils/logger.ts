@@ -1,8 +1,23 @@
 import debug from "debug";
 import { writeFileSync, existsSync, writeSync } from "fs";
 import { BooleanEnvVarSchema, IntEnvVarSchema } from "../config.schema.js";
+import { loggerContextStore } from "./asyncContext.js";
 
 export const logger = debug("moneyman");
+
+// Hook into debug.log to inject logger context
+const originalLog = debug.log;
+debug.log = function (...args: unknown[]) {
+  const context = loggerContextStore.getStore();
+  if (context) {
+    if (typeof args[0] === "string") {
+      args[0] = `${context.prefix} ${args[0]}`;
+    } else {
+      args.unshift(context.prefix);
+    }
+  }
+  return originalLog.apply(this, args);
+};
 
 export function createLogger(name: string) {
   return logger.extend(name);
@@ -44,18 +59,4 @@ export function logToPublicLog(
     }
   }
   console.log(message);
-}
-
-export const metadataLogEntries: string[] = [];
-const metadataLogger = createLogger("metadataLogger");
-
-/**
- * Logs a message to the metadata file sent to the chat
- * @param message The message to log.
- */
-export function logToMetadataFile(message: string) {
-  const date = new Date().toISOString();
-  metadataLogEntries.push(`[${date}] ${message}`);
-  metadataLogger(message);
-  return message;
 }

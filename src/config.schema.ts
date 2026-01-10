@@ -112,6 +112,7 @@ export const ScrapingOptionsSchema = z.object({
   futureMonths: z.number().min(0).max(12).default(1),
   transactionHashType: z.enum(["", "moneyman"]).default(""),
   additionalTransactionInfo: z.boolean().default(false),
+  includeRawTransaction: z.boolean().default(false),
   hiddenDeprecations: z.array(z.string()).default([]),
   puppeteerExecutablePath: z.string().optional(),
   maxParallelScrapers: z.number().min(1).max(10).default(1),
@@ -137,24 +138,6 @@ export const NotificationOptionsSchema = z.object({
        * Maximum time in seconds to wait for OTP response from user.
        */
       otpTimeoutSeconds: z.number().min(30).max(600).optional().default(300),
-      /**
-       * Enable sending run metadata to Telegram after each run.
-       * When enabled, a JSON file with run metadata will be sent to the chat.
-       * @default true
-       */
-      reportRunMetadata: z.boolean().optional().default(true),
-      /**
-       * Include used domains in the run metadata report.
-       * Only applies when reportRunMetadata is enabled.
-       * @default true
-       */
-      reportUsedDomains: z.boolean().optional().default(true),
-      /**
-       * Include external IP address in the run metadata report.
-       * Only applies when reportRunMetadata is enabled.
-       * @default true
-       */
-      reportExternalIp: z.boolean().optional().default(true),
       /**
        * Whether to send the log file to Telegram when using secure logging (MONEYMAN_UNSAFE_STDOUT=false).
        * Only applies when output redirection is enabled.

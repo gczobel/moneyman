@@ -44,17 +44,12 @@ export type ScraperConfig = {
   parallelScrapers: number;
   accounts: Array<AccountConfig>;
   additionalTransactionInformation: boolean;
+  includeRawTransaction: boolean;
 };
 
 export type ImageWithCaption = {
   photoPath: string;
   caption: string;
-};
-
-export type RunMetadata = {
-  domainsByCompany: Partial<Record<CompanyTypes, unknown>>;
-  networkInfo: unknown;
-  metadataLogEntries: Array<string>;
 };
 
 export interface RunnerHooks {
@@ -63,6 +58,5 @@ export interface RunnerHooks {
   onResultsReady(results: AccountScrapeResult[]): Promise<void>;
   onError(e: Error, caller?: string): Promise<void>;
   failureScreenshotsHandler: (photos: ImageWithCaption[]) => Promise<unknown>;
-  reportRunMetadata(metadata: RunMetadata): Promise<void>;
 }
 export type Runner = (hooks: RunnerHooks) => Promise<void>;
