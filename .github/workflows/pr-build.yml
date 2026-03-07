@@ -261,6 +261,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+          sbom: false
 
       - name: Get image size
         if: needs.prepare.outputs.build_needed == 'true'
@@ -429,7 +431,7 @@ jobs:
 
       - name: Upload Docker image as artifact
         if: needs.prepare.outputs.build_needed == 'true'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: docker-image-pr-${{ github.event.pull_request.number }}
           path: /tmp/image.tar
