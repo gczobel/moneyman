@@ -14,8 +14,20 @@
       "skipFiles": ["<node_internals>/**"],
       "outputCapture": "std",
       "env": {
-        "DEBUG": "*"
+        "DEBUG": "moneyman:*",
+        "MONEYMAN_CONFIG_PATH": "/home/gus/development/moneyman/config.json"
       }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Config to single line",
+      "program": "${workspaceFolder}/src/scripts/config-to-single-line.ts",
+      "outFiles": ["${workspaceFolder}/dst/**/*.js"],
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "skipFiles": ["<node_internals>/**"],
+      "outputCapture": "std",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }

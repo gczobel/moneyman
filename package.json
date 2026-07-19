@@ -12,7 +12,7 @@
     "start": "node dst/index.js",
     "start:container": "docker compose up",
     "prepare": "husky",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && node scripts/apply-patches.js",
     "build": "tsc",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
