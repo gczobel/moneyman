@@ -1,0 +1,25 @@
+diff --git a/node_modules/israeli-bank-scrapers/lib/scrapers/base-isracard-amex.js b/node_modules/israeli-bank-scrapers/lib/scrapers/base-isracard-amex.js
+index 8125550..fbcf5ed 100644
+--- a/node_modules/israeli-bank-scrapers/lib/scrapers/base-isracard-amex.js
++++ b/node_modules/israeli-bank-scrapers/lib/scrapers/base-isracard-amex.js
+@@ -260,6 +260,7 @@ class IsracardAmexBaseScraper extends _baseScraperWithBrowser.BaseScraperWithBro
+     await (0, _browser.maskHeadlessUserAgent)(this.page);
+     await this.navigateTo(`${this.baseUrl}/personalarea/Login`);
+     this.emitProgress(_definitions.ScraperProgressTypes.LoggingIn);
++    await (0, _waiting.sleep)(Math.floor(Math.random() * 2000) + 2000);
+     const validateUrl = `${this.servicesUrl}?reqName=ValidateIdData`;
+     const validateRequest = {
+       id: credentials.id,
+diff --git a/node_modules/israeli-bank-scrapers/lib/scrapers/yahav.js b/node_modules/israeli-bank-scrapers/lib/scrapers/yahav.js
+index ce60e06..291d77a 100644
+--- a/node_modules/israeli-bank-scrapers/lib/scrapers/yahav.js
++++ b/node_modules/israeli-bank-scrapers/lib/scrapers/yahav.js
+@@ -185,7 +185,7 @@ async function fetchAccounts(page, startDate, options) {
+     }
+     await (0, _elementsInteractions.waitUntilElementFound)(page, ACCOUNT_DETAILS_SELECTOR, true);
+     await (0, _elementsInteractions.clickButton)(page, ACCOUNT_DETAILS_SELECTOR);
+-    await (0, _elementsInteractions.waitUntilElementFound)(page, '.statement-options .selected-item-top', true);
++    await (0, _elementsInteractions.waitUntilElementFound)(page, `${FROM_PICKER} a.datepicker-button`, true);
+     accounts.push(await fetchAccountData(page, startDate, portfolioID, options));
+   }
+   return accounts;
