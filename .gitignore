@@ -8,3 +8,12 @@ moneyman.conf.jsonc
 local_config/
 dst/
 output
+output.json
+
+# Local config files — contain live credentials, never commit these
+config.json
+config copy.json
+configsingle.json
+
+# Personal debug config, not needed for the built image or CI
+.vscode/launch.json

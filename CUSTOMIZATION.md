@@ -1,149 +1,43 @@
 # Customizations
 
-This document describes the customizations made to our fork of the moneyman repository and provides instructions for maintaining these customizations when syncing with the upstream repository.
+This fork (`gczobel/moneyman`) tracks upstream (`daniel-hauser/moneyman`) via plain merges. The customizations below are almost entirely **additive files** that upstream doesn't have, so they never conflict with an upstream sync. Only one existing upstream file has a real content change.
 
-## Customized Files
+## What's customized
 
-The following files have been customized in our fork:
+- `patches/israeli-bank-scrapers+6.7.3.patch` — fixes for the Yahav bank scraper's date-picker and account-ID selectors, which broke against the live site ahead of an upstream fix landing (see `yahav-statement-options-fix.md`).
+- `patches/israeli-bank-scrapers+6.7.3+isracard.patch` — adds a randomized delay before Isracard/Amex login to reduce bot-detection false positives.
+- `scripts/apply-patches.js` — applies named-variant patches (`{package}+{version}+{label}.patch`) via `git apply` after `patch-package` runs. `patch-package` only auto-applies the plain `{package}+{version}.patch` form, so named variants need this extra step.
+- `src/scripts/config-to-single-line.ts` — minifies a local JSONC config file into a single-line JSON string, for pasting into the `MONEYMAN_CONFIG` GitHub Actions secret.
+- `visa-cal-change-password-fix.md` — a documented, **not yet implemented** fix for Cal's changed password-change error UI. No patch file exists for it yet.
+- `yahav-statement-options-fix.md` — postmortem explaining the root cause behind the Yahav patch above.
+- `package.json` — `postinstall` runs `patch-package && node scripts/apply-patches.js` instead of just `patch-package`, to wire in the named-patch mechanism.
 
-1. `.github/workflows/scrape.yml` - Modified schedule for GitHub Actions
-2. `.vscode/launch.json` - Custom VS Code debugging configuration
+`.vscode/launch.json` is **not** tracked — it's a personal debug config with no effect on the built image or CI, so it's gitignored and stays local-only per machine.
 
-## Syncing with Upstream Repository
+## Syncing with upstream
 
-### Initial Setup (Only Needed Once)
-
-1. Add the upstream repository as a remote:
-
-   ```bash
-   git remote add upstream git@github.com:daniel-hauser/moneyman.git
-   ```
-
-2. Verify the remotes:
-
-   ```bash
-   git remote -v
-   ```
-
-### Sync Process
-
-Follow these steps when you need to sync with the upstream repository:
-
-1. Create a backup branch of your current state:
-
-   ```bash
-   git checkout main
-   git branch my-customized-backup
-   ```
-
-2. Fetch the latest changes from the upstream repository:
-
-   ```bash
-   git fetch upstream
-   ```
-
-3. Merge the upstream changes while preserving your own:
-
-   ```bash
-   git merge upstream/main
-   ```
-
-4. If there are conflicts, resolve them carefully to keep your customizations.
-   For each file, you can choose:
-
-   a. Keep your version:
-
-   ```bash
-   git checkout --ours path/to/file
-   git add path/to/file
-   ```
-
-   b. Use upstream version:
-
-   ```bash
-   git checkout --theirs path/to/file
-   git add path/to/file
-   ```
-
-   c. Manually edit the file to merge changes
-
-5. For `package-lock.json` conflicts:
-
-   ```bash
-   # Accept package.json changes
-   git checkout --theirs package.json
-   git add package.json
-
-   # Delete conflicted package-lock.json
-   rm package-lock.json
-
-   # Regenerate package-lock.json
-   npm install
-
-   # Add the new file
-   git add package-lock.json
-   ```
-
-6. Complete the merge:
-
-   ```bash
-   git commit
-   ```
-
-7. Test that everything works:
-
-   ```bash
-   npm install
-   npm test
-   ```
-
-8. If everything is working, push to your fork:
-
-   ```bash
-   git push origin main
-   ```
-
-### Reverting to Backup
-
-If something goes wrong during the merge process, you can revert to your backup:
+Divergence is small enough that a plain merge works — no rebase, no `merge=ours`, no conflict runbook needed for most files:
 
 ```bash
-git checkout my-customized-backup
-git branch -D main
-git checkout -b main
-git push -f origin main
+git remote add upstream git@github.com:daniel-hauser/moneyman.git  # once
+git fetch upstream
+git merge upstream/main
 ```
 
-### Reapplying Specific Customizations
+The only file where a real conflict is plausible is `package.json`'s `postinstall` line — if it conflicts, keep the `patch-package && node scripts/apply-patches.js` form and reconcile with whatever upstream changed around it.
 
-If you need to reapply specific customizations after a merge:
+After merging:
 
-1. For `.github/workflows/scrape.yml`:
+```bash
+npm ci        # re-applies patches via postinstall
+npm run build
+npm test
+```
 
-   ```bash
-   # If you want to use the upstream version as a base
-   git checkout upstream/main -- .github/workflows/scrape.yml
-   # Then edit the file to add your custom schedule
-   ```
+Then push, and verify end-to-end by manually running the "Scrape" GitHub Action (`workflow_dispatch`) against real accounts.
 
-2. For `.vscode/launch.json`:
+## Adding a new scraper patch
 
-   ```bash
-   # If your version was overwritten
-   git checkout my-customized-backup -- .vscode/launch.json
-   git add .vscode/launch.json
-   git commit -m "Restore custom VS Code launch configuration"
-   ```
-
-## Future Improvements
-
-To make maintenance easier in the future, consider:
-
-1. Script the sync process for automation
-   - Create a shell script that automates the fetch, merge, and specific file checkouts
-
-2. Consider moving custom configurations to separate files that won't conflict, such as:
-   - `.github/workflows/scrape.custom.yml`
-   - `.vscode/launch.custom.json`
-
-   Then modify the application to look for these custom files first.
+1. Edit the relevant file under `node_modules/israeli-bank-scrapers/lib/scrapers/`.
+2. Generate the patch: `npx patch-package israeli-bank-scrapers` (plain fixes) — or, for a named variant that shouldn't be picked up automatically by `patch-package`, hand-craft `patches/israeli-bank-scrapers+<version>+<label>.patch` and let `scripts/apply-patches.js` apply it.
+3. Commit the patch file.
