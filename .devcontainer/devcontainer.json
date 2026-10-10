@@ -1,0 +1,37 @@
+{
+  "name": "moneyman + israeli-bank-scrapers",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "workspaceFolder": "/workspaces/moneyman",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/moneyman,type=bind,consistency=delegated",
+  "mounts": [
+    "source=${localEnv:HOME}/development/israeli-bank-scrapers,target=/workspaces/israeli-bank-scrapers,type=bind,consistency=delegated",
+    "source=moneyman-claude-config,target=/home/node/.claude,type=volume",
+    "source=moneyman-gh-config,target=/home/node/.config/gh,type=volume",
+    "source=moneyman-npm-cache,target=/home/node/.npm,type=volume",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,readonly",
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
+    "source=${localEnv:XAUTHORITY},target=/home/node/.Xauthority,type=bind,readonly"
+  ],
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "XAUTHORITY": "/home/node/.Xauthority",
+    "BROWSER": "false"
+  },
+  "runArgs": ["--device=/dev/dri:/dev/dri"],
+  "remoteUser": "node",
+  "postCreateCommand": "cd /workspaces/moneyman && npm ci && cd /workspaces/israeli-bank-scrapers && npm ci",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "anthropic.claude-code"
+      ]
+    }
+  }
+}
