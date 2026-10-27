@@ -15,8 +15,6 @@ RUN apt-get update && \
         libx11-xcb1 libxcomposite1 libxdamage1 libxfixes3 libxkbcommon0 libxrandr2 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
-
 # Pre-create with correct ownership so the ${localEnv:HOME}/.config/gh volume mount
 # in devcontainer.json doesn't leave this parent directory root-owned (podman only
 # fixes ownership of the mount target itself, not directories it has to auto-create
@@ -34,3 +32,10 @@ RUN ln -sf /home/node/.claude/.claude.json /home/node/.claude.json && \
     chown -h node:node /home/node/.claude.json
 
 USER node
+
+# Install Claude Code under a user-owned npm prefix so its auto-updater can write to
+# it (the default /usr/local prefix is root-owned, giving "npm global folder isn't
+# writable" / no_permissions in `claude doctor`).
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global \
+    PATH=/home/node/.npm-global/bin:$PATH
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
