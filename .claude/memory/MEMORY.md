@@ -1,0 +1,1 @@
+- [Keep main mirroring upstream](git-main-mirrors-upstream.md) — origin/main must equal upstream/main; customizations only on patched; never merge patched into main
