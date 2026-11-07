@@ -20,7 +20,11 @@
   "containerEnv": {
     "DISPLAY": "${localEnv:DISPLAY}",
     "XAUTHORITY": "/home/node/.Xauthority",
-    "BROWSER": "false"
+    "BROWSER": "false",
+    "PORTAINER_URL": "${localEnv:PORTAINER_URL:https://10.0.0.144:9443}",
+    "PORTAINER_API_KEY": "${localEnv:PORTAINER_API_KEY}",
+    "PORTAINER_TLS_VERIFY": "${localEnv:PORTAINER_TLS_VERIFY:0}",
+    "PORTAINER_EXPOSE_ENV_VALUES": "${localEnv:PORTAINER_EXPOSE_ENV_VALUES:1}"
   },
   "runArgs": ["--device=/dev/dri:/dev/dri"],
   "remoteUser": "node",
