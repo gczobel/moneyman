@@ -31,6 +31,9 @@ RUN mkdir -p /home/node/.config && chown node:node /home/node/.config
 RUN ln -sf /home/node/.claude/.claude.json /home/node/.claude.json && \
     chown -h node:node /home/node/.claude.json
 
+# uv/uvx, needed to launch stdio MCP servers such as mcp-portainer.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
 USER node
 
 # Install Claude Code under a user-owned npm prefix so its auto-updater can write to
