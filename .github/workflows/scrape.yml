@@ -25,6 +25,10 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
+      # The preflight script lives in this repo, so the runner needs a checkout.
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
       - id: normalize-repository-name
         run: echo "repository=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
