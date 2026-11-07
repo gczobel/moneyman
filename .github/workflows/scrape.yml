@@ -50,6 +50,9 @@ jobs:
         id: proxy
         env:
           IMAGE: ${{ steps.set-container-image.outputs.image }}
+          PROXY_NAME: ${{ vars.PROXY_NAME }}
+          PROXY_IP: ${{ vars.PROXY_IP }}
+          DDNS_HOST: ${{ vars.DDNS_HOST }}
         run: bash .github/scripts/proxy-preflight.sh "$IMAGE"
 
       - name: Run scraper
