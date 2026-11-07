@@ -34,16 +34,54 @@ jobs:
       - name: Pull container image
         run: docker pull ${{ steps.set-container-image.outputs.image }}
 
-      - name: Run scraper
-        run: >
-          docker run --rm
-          -e MONEYMAN_CONFIG
-          -e DEBUG
-          -e TZ
-          -e SEND_NEW_CONFIG_TO_TG
-          ${{ steps.set-container-image.outputs.image }}
+      # Joins the tailnet as tag:ci so the browser can reach the home proxy.
+      - name: Join tailnet
+        uses: tailscale/github-action@6cae46e2d796f265265cfcf628b72a32b4d7cade # v3
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+          tags: tag:ci
+
+      # Fails closed: the job stops here unless the proxy exits from the home line.
+      - name: Proxy preflight
+        id: proxy
         env:
-          MONEYMAN_CONFIG: ${{ secrets.MONEYMAN_CONFIG }}
+          IMAGE: ${{ steps.set-container-image.outputs.image }}
+        run: bash .github/scripts/proxy-preflight.sh "$IMAGE"
+
+      - name: Run scraper
+        env:
+          IMAGE: ${{ steps.set-container-image.outputs.image }}
+          MONEYMAN_CONFIG_SECRET: ${{ secrets.MONEYMAN_CONFIG }}
+          PROXY: ${{ steps.proxy.outputs.proxy }}
           DEBUG: ${{ github.event.inputs.DEBUG || '' }}
           TZ: "Asia/Jerusalem"
           SEND_NEW_CONFIG_TO_TG: ${{ github.event.inputs.sendNewConfigToTg }}
+        run: |
+          # Use the proxy the preflight verified, so browserProxy always matches it.
+          MONEYMAN_CONFIG="$(printf '%s' "$MONEYMAN_CONFIG_SECRET" | jq -c --arg p "$PROXY" '.options.scraping.browserProxy = $p')"
+          export MONEYMAN_CONFIG
+          docker run --rm \
+            -e MONEYMAN_CONFIG \
+            -e DEBUG \
+            -e TZ \
+            -e SEND_NEW_CONFIG_TO_TG \
+            "$IMAGE"
+
+      # The preflight failure happens before moneyman starts, so moneyman cannot
+      # send its own Telegram message. Send a short one here using the same bot.
+      - name: Notify on failure
+        if: failure()
+        env:
+          MONEYMAN_CONFIG_SECRET: ${{ secrets.MONEYMAN_CONFIG }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TOKEN="$(printf '%s' "$MONEYMAN_CONFIG_SECRET" | jq -r '.options.notifications.telegram.apiKey // empty' 2>/dev/null)"
+          CHAT="$(printf '%s' "$MONEYMAN_CONFIG_SECRET" | jq -r '.options.notifications.telegram.chatId // empty' 2>/dev/null)"
+          if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then
+            echo "No Telegram settings in MONEYMAN_CONFIG; skipping notification"
+            exit 0
+          fi
+          curl -fsS --max-time 15 "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT}" \
+            --data-urlencode "text=Moneyman scrape failed (proxy preflight or run). ${RUN_URL}" \
+            >/dev/null || echo "Telegram notification failed"
