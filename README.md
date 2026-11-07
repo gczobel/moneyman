@@ -168,6 +168,11 @@ options: {
      */
     puppeteerExecutablePath?: string;
     /**
+     * Proxy for the browser, e.g. "http://100.64.0.5:3128". All scraper traffic
+     * from the browser goes through it. Use a proxy you control.
+     */
+    browserProxy?: string;
+    /**
      * The maximum number of parallel scrapers to run
      * @default 1
      */

@@ -120,6 +120,12 @@ export const ScrapingOptionsSchema = z.object({
   includeRawTransaction: z.boolean().default(false),
   hiddenDeprecations: z.array(z.string()).default([]),
   puppeteerExecutablePath: z.string().optional(),
+  /**
+   * Proxy for the browser, e.g. "http://100.64.0.5:3128". Every browser context
+   * (and therefore every request the scrapers make from the page) goes through it.
+   * Use a proxy you control, reachable only over a private network.
+   */
+  browserProxy: z.string().url().optional(),
   maxParallelScrapers: z.number().min(1).max(10).default(1),
   domainTracking: z.boolean().default(false),
 });
