@@ -10,10 +10,13 @@
 set -uo pipefail
 
 IMAGE="${1:?usage: proxy-preflight.sh <moneyman-image>}"
-PROXY_NAME="http://proxy-host.example.ts.net:3128"
-PROXY_IP="http://198.51.100.10:3128"
-TAILNET_HOST="proxy-host.example.ts.net"
-DDNS_HOST="home.example.com"
+# Proxy addresses and the DDNS host come from repository variables, so they are not
+# stored in this public repo: PROXY_NAME (URL), PROXY_IP (URL), DDNS_HOST (host name).
+PROXY_NAME="${PROXY_NAME:?set the PROXY_NAME repository variable}"
+PROXY_IP="${PROXY_IP:?set the PROXY_IP repository variable}"
+DDNS_HOST="${DDNS_HOST:?set the DDNS_HOST repository variable}"
+TAILNET_HOST="${PROXY_NAME#*://}"
+TAILNET_HOST="${TAILNET_HOST%%:*}"
 CURL_IMAGE="curlimages/curl:8.11.1"
 
 fail() {
