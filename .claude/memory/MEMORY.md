@@ -1,1 +1,5 @@
 - [Keep main mirroring upstream](git-main-mirrors-upstream.md) — origin/main must equal upstream/main; customizations only on patched; never merge patched into main
+- [Cal proxy egress](cal-proxy-egress.md) — Cal blocks GitHub IPs; scrape goes through home proxy over Tailscale; preflight, repo variables
+- [CI secrets and expiry](ci-secrets-and-expiry.md) — MONEYMAN_CONFIG, TS_AUTHKEY (expires ~2027-02-05), proxy variables
+- [patched history rewritten 2026-11-07](patched-history-rewritten-2026-11-07.md) — old SHAs before that date do not resolve; never force-push patched without asking
+- [Temporary fetch trace patch](temp-fetch-trace-patch.md) — remove the trace logging from the israeli-bank-scrapers patch once Cal is stable
