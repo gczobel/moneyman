@@ -206,10 +206,17 @@ options: {
      */
     puppeteerExecutablePath?: string;
     /**
+<<<<<<< HEAD
      * Run without a browser window. Set false to enter bank SMS codes manually.
      * @default true
      */
     headless?: boolean;
+=======
+     * Proxy for the browser, e.g. "http://100.64.0.5:3128". All scraper traffic
+     * from the browser goes through it. Use a proxy you control.
+     */
+    browserProxy?: string;
+>>>>>>> 5ec2d7f (feat(scraper): optional browserProxy setting for browser traffic)
     /**
      * The maximum number of parallel scrapers to run
      * @default 1

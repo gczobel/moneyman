@@ -44,7 +44,10 @@ export async function createSecureBrowserContext(
   companyId: CompanyTypes,
   initDomainTracking: DomainTracker["initDomainTracking"],
 ): Promise<BrowserContext> {
-  const context = await browser.createBrowserContext();
+  const proxyServer = config.options.scraping.browserProxy;
+  const context = await browser.createBrowserContext(
+    proxyServer ? { proxyServer } : undefined,
+  );
   await initDomainTracking(context, companyId);
   await initCloudflareSkipping(context);
   return context;
