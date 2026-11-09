@@ -27,7 +27,7 @@ jobs:
     steps:
       # The preflight script lives in this repo, so the runner needs a checkout.
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - id: normalize-repository-name
         run: echo "repository=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
@@ -40,7 +40,7 @@ jobs:
 
       # Joins the tailnet as tag:ci so the browser can reach the home proxy.
       - name: Join tailnet
-        uses: tailscale/github-action@6cae46e2d796f265265cfcf628b72a32b4d7cade # v3
+        uses: tailscale/github-action@064b10558093f38325e838ddea35486bdc6b1d5c # v4.4.0
         with:
           authkey: ${{ secrets.TS_AUTHKEY }}
           tags: tag:ci
