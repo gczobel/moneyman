@@ -21,3 +21,5 @@ config_small.json
 
 # Personal utility script, not part of the project
 scripts/minify-config.js
+# Claude Code local files (private notes and settings)
+.claude/
