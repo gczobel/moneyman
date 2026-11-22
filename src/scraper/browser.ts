@@ -43,8 +43,8 @@ export async function createSecureBrowserContext(
   browser: Browser,
   companyId: CompanyTypes,
   initDomainTracking: DomainTracker["initDomainTracking"],
+  proxyServer?: string,
 ): Promise<BrowserContext> {
-  const proxyServer = config.options.scraping.browserProxy;
   const context = await browser.createBrowserContext(
     proxyServer ? { proxyServer } : undefined,
   );

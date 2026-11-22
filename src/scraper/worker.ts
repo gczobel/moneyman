@@ -60,6 +60,7 @@ function createScraperSession(): ScraperWorkerApi {
             {
               executablePath: scraping.executablePath,
               headless: scraping.headless,
+              browserProxy: scraping.browserProxy,
               signal: abort.signal,
               onTiming: (timing) =>
                 locks

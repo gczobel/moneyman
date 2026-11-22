@@ -282,6 +282,7 @@ describe("scraper runtime browser lifecycle", () => {
       browser,
       CompanyTypes.hapoalim,
       initDomainTracking,
+      undefined,
     );
   });
 

@@ -46,6 +46,7 @@ export async function scrapeAccounts(
   runtime: {
     executablePath?: string;
     headless?: boolean;
+    browserProxy?: string;
     requestOtpCode?: OtpRequest;
     signal?: AbortSignal;
     onTiming?: RunnerHooks["onTiming"];
@@ -100,6 +101,7 @@ export async function scrapeAccounts(
                     browser,
                     companyId,
                     initDomainTracking,
+                    runtime.browserProxy,
                   )) as any,
                   startDate,
                   companyId,
